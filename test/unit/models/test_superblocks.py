@@ -123,8 +123,8 @@ def superblock():
 
 
 def test_superblock_is_valid(superblock):
-    from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    from swyftd import SwyftDaemon
+    swyftd = SwyftDaemon.from_swyft_conf(config.swyft_conf)
 
     orig = Superblock(**superblock.get_dict())  # make a copy
 
@@ -225,19 +225,19 @@ def test_serialisable_fields():
 
 
 def test_deterministic_superblock_creation(go_list_proposals):
-    import dashlib
+    import swyftlib
     import misc
-    from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    from swyftd import SwyftDaemon
+    swyftd = SwyftDaemon.from_swyft_conf(config.swyft_conf)
     for item in go_list_proposals:
-        (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
+        (go, subobj) = GovernanceObject.import_gobject_from_swyftd(swyftd, item)
 
     max_budget = 60
     prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
 
     # MAX_GOVERNANCE_OBJECT_DATA_SIZE defined in governance-object.h
     maxgovobjdatasize = 16 * 1024
-    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
+    sb = swyftlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
 
     assert sb.event_block_height == 72000
     assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
@@ -248,18 +248,18 @@ def test_deterministic_superblock_creation(go_list_proposals):
 
 
 def test_superblock_size_limit(go_list_proposals):
-    import dashlib
+    import swyftlib
     import misc
-    from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    from swyftd import SwyftDaemon
+    swyftd = SwyftDaemon.from_swyft_conf(config.swyft_conf)
     for item in go_list_proposals:
-        (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
+        (go, subobj) = GovernanceObject.import_gobject_from_swyftd(swyftd, item)
 
     max_budget = 60
     prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
 
     maxgovobjdatasize = 469
-    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
+    sb = swyftlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
 
     # two proposals in the list, but...
     assert len(prop_list) == 2
@@ -274,11 +274,11 @@ def test_superblock_size_limit(go_list_proposals):
 
 
 def test_deterministic_superblock_selection(go_list_superblocks):
-    from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    from swyftd import SwyftDaemon
+    swyftd = SwyftDaemon.from_swyft_conf(config.swyft_conf)
 
     for item in go_list_superblocks:
-        (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
+        (go, subobj) = GovernanceObject.import_gobject_from_swyftd(swyftd, item)
 
     # highest hash wins if same -- so just order by hash
     sb = Superblock.find_highest_deterministic('542f4433e438bdd64697b8381fda1a7a9b7a111c3a4e32fad524d1821d820394')
